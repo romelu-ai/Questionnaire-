@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>クラス印象アンケート</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+<style>
+
+:root{
+  --paper:#F6F1E6;
+  --paper-line:#DCD2BB;
+  --ink:#23282E;
+  --ink-soft:#5B5647;
+  --stamp:#B23A2E;
+  --stamp-soft:#E9D9CE;
+  --ok:#55684A;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  padding:0;
+}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Zen Kaku Gothic New', sans-serif;
+  line-height:1.7;
+  min-height:100vh;
+}
+
+.wrap{
+  max-width:560px;
+  margin:0 auto;
+  padding:40px 20px 80px;
+}
+
+header.page-head{
+  border-bottom:1px solid var(--paper-line);
+  padding-bottom:20px;
+  margin-bottom:32px;
+}
+
+h1{
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:26px;
+  margin:0 0 10px;
+  letter-spacing:.02em;
+}
+
+.lead{
+  color:var(--ink-soft);
+  font-size:14.5px;
+  margin:0;
+}
+
+.lead b{
+  color:var(--ink);
+  font-weight:700;
+}
+
+#status-area{
+  padding:60px 0;
+  text-align:center;
+  color:var(--ink-soft);
+  font-size:14px;
+}
+
+.card{
+  background:#fff;
+  border:1px solid var(--paper-line);
+  border-radius:2px;
+  padding:26px 22px;
+  margin-bottom:22px;
+}
+
+.card-head{
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+  margin-bottom:18px;
+  border-bottom:1px dashed var(--paper-line);
+  padding-bottom:14px;
+}
+
+.badge{
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:15px;
+  color:var(--stamp);
+  background:var(--stamp-soft);
+  border-radius:2px;
+  padding:4px 10px;
+  white-space:nowrap;
+}
+
+.badge .num{
+  font-size:22px;
+  margin-left:2px;
+}
+
+.card-head p{
+  margin:0;
+  font-size:13px;
+  color:var(--ink-soft);
+}
+
+label{
+  display:block;
+  font-size:13.5px;
+  font-weight:700;
+  margin:16px 0 6px;
+}
+
+label:first-of-type{
+  margin-top:0;
+}
+
+textarea,
+input[type=text],
+input[type=password]{
+  width:100%;
+  font-family:inherit;
+  font-size:14.5px;
+  color:var(--ink);
+  background:var(--paper);
+  border:1px solid var(--paper-line);
+  border-radius:2px;
+  padding:10px 12px;
+  resize:vertical;
+}
+
+textarea{
+  min-height:64px;
+}
+
+textarea:focus,
+input:focus{
+  outline:2px solid var(--stamp);
+  outline-offset:-1px;
+}
+
+.submit-row{
+  margin-top:34px;
+  text-align:center;
+}
+
+button{
+  font-family:inherit;
+  font-size:15px;
+  font-weight:700;
+  color:#fff;
+  background:var(--stamp);
+  border:none;
+  border-radius:2px;
+  padding:13px 40px;
+  cursor:pointer;
+}
+
+button:disabled{
+  background:#B9AFA0;
+  cursor:not-allowed;
+}
+
+button:not(:disabled):hover{
+  filter:brightness(1.06);
+}
+
+.error{
+  color:var(--stamp);
+  font-size:13px;
+  margin-top:12px;
+  text-align:center;
+}
+
+.done{
+  text-align:center;
+  padding:70px 20px;
+}
+
+.done .mark{
+  font-family:'Shippori Mincho', serif;
+  font-size:40px;
+  color:var(--ok);
+  margin-bottom:14px;
+}
+
+.done p{
+  color:var(--ink-soft);
+  font-size:14px;
+}
+
+@media (prefers-reduced-motion: no-preference){
+
+  .card{
+    animation:rise .35s ease both;
+  }
+
+}
+
+@keyframes rise{
+
+  from{
+    opacity:0;
+    transform:translateY(6px);
+  }
+
+  to{
+    opacity:1;
+    transform:none;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <!-- ========================================================
+       ページタイトル
+       ======================================================== -->
+
+  <header class="page-head">
+
+    <h1>クラス印象アンケート</h1>
+
+    <p class="lead">
+      あなたには <b>3人分</b> の番号がランダムに割り当てられます。
+      それぞれについて、印象を教えてください。
+    </p>
+
+  </header>
+
+
+  <!-- ========================================================
+       パスワード入力
+       ======================================================== -->
+
+  <div id="password-area">
+
+    <div class="card">
+
+      <div class="card-head">
+
+        <span class="badge">
+          参加
+        </span>
+
+        <p>
+          アンケートを開始するには
+          パスワードを入力してください。
+        </p>
+
+      </div>
+
+
+      <label for="survey-password">
+        パスワード
+      </label>
+
+      <input
+        type="password"
+        id="survey-password"
+        autocomplete="off"
+      >
+
+
+      <div class="submit-row">
+
+        <button
+          type="button"
+          id="password-button"
+        >
+          アンケートを開始
+        </button>
+
+
+        <div
+          class="error"
+          id="password-error"
+          style="display:none;"
+        ></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================================================
+       読み込み表示
+       ======================================================== -->
+
+  <div
+    id="status-area"
+    style="display:none;"
+  >
+    読み込み中…
+  </div>
+
+
+  <!-- ========================================================
+       アンケートフォーム
+       ======================================================== -->
+
+  <form
+    id="survey-form"
+    style="display:none;"
+  ></form>
+
+
+  <!-- ========================================================
+       送信完了
+       ======================================================== -->
+
+  <div
+    id="done-area"
+    style="display:none;"
+    class="done"
+  >
+
+    <div class="mark">
+      送信完了
+    </div>
+
+    <p>
+      回答ありがとうございました。
+    </p>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* ============================================================
+ * Supabase設定
+ * ============================================================ */
+
+const SUPABASE_URL =
+  "https://tqvemvvimtsnrmohelnm.supabase.co";
+
+const SUPABASE_ANON_KEY =
+  "sb_publishable_TRfm7gxQ7Sdh_8CX85smDw_TG4akfdj";
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+
+/* ============================================================
+ * 質問構成
+ *
+ * type:
+ *   "text"     → 一行入力
+ *   "textarea" → 複数行入力
+ * ============================================================ */
+
+const QUESTIONS = [
+
+  {
+    id:"impression",
+    type:"textarea",
+    label:"この人の印象を教えてください",
+    required:true
+  },
+
+  {
+    id:"goodpoint",
+    type:"textarea",
+    label:"良いところ・すごいと思うところ",
+    required:false
+  },
+
+  {
+    id:"message",
+    type:"text",
+    label:"一言メッセージ",
+    required:false
+  }
+
+];
+
+
+/* ============================================================
+ * 回答者ID
+ *
+ * 同じブラウザから再アクセスした場合、
+ * 同じ回答者IDを使用します。
+ * ============================================================ */
+
+const RESPONDENT_KEY =
+  "impression_survey_respondent_id";
+
+
+function getRespondentId(){
+
+  let id =
+    localStorage.getItem(
+      RESPONDENT_KEY
+    );
+
+
+  if(!id){
+
+    id =
+      crypto.randomUUID();
+
+    localStorage.setItem(
+      RESPONDENT_KEY,
+      id
+    );
+
+  }
+
+
+  return id;
+
+}
+
+
+/* ============================================================
+ * 質問欄HTML
+ * ============================================================ */
+
+function fieldHtml(number,q){
+
+  const name =
+    `n${number}_${q.id}`;
+
+
+  const tag =
+    q.type === "textarea"
+
+      ?
+
+      `<textarea
+        name="${name}"
+        ${q.required ? "required" : ""}
+      ></textarea>`
+
+      :
+
+      `<input
+        type="text"
+        name="${name}"
+        ${q.required ? "required" : ""}
+      >`;
+
+
+  return `
+
+    <label for="${name}">
+      ${q.label}${q.required ? "" : "（任意）"}
+    </label>
+
+    ${tag}
+
+  `;
+
+}
+
+
+/* ============================================================
+ * 番号カードHTML
+ * ============================================================ */
+
+function cardHtml(number,index){
+
+  return `
+
+    <section
+      class="card"
+      data-number="${number}"
+    >
+
+      <div class="card-head">
+
+        <span class="badge">
+
+          番号
+
+          <span class="num">
+            ${number}
+          </span>
+
+        </span>
+
+
+        <p>
+          ${index + 1} / 3人目
+        </p>
+
+      </div>
+
+
+      ${QUESTIONS
+        .map(
+          q =>
+            fieldHtml(number,q)
+        )
+        .join("")
+      }
+
+    </section>
+
+  `;
+
+}
+
+
+/* ============================================================
+ * パスワード確認
+ *
+ * Supabaseの
+ * verify_survey_password()
+ * を呼び出します。
+ * ============================================================ */
+
+async function verifyPassword(){
+
+  const password =
+    document.getElementById(
+      "survey-password"
+    ).value.trim();
+
+
+  const errorBox =
+    document.getElementById(
+      "password-error"
+    );
+
+
+  errorBox.style.display =
+    "none";
+
+
+  if(!password){
+
+    errorBox.textContent =
+      "パスワードを入力してください。";
+
+    errorBox.style.display =
+      "block";
+
+    return false;
+
+  }
+
+
+  console.log(
+    "パスワード確認中..."
+  );
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.rpc(
+      "verify_survey_password",
+      {
+        p_password:password
+      }
+    );
+
+
+  console.log(
+    "パスワード確認結果:",
+    data,
+    error
+  );
+
+
+  if(error){
+
+    console.error(error);
+
+    errorBox.textContent =
+      "パスワード確認に失敗しました。";
+
+    errorBox.style.display =
+      "block";
+
+    return false;
+
+  }
+
+
+  if(data !== true){
+
+    errorBox.textContent =
+      "パスワードが正しくありません。";
+
+    errorBox.style.display =
+      "block";
+
+    return false;
+
+  }
+
+
+  return true;
+
+}
+
+
+/* ============================================================
+ * アンケート開始
+ * ============================================================ */
+
+async function startSurvey(){
+
+  const button =
+    document.getElementById(
+      "password-button"
+    );
+
+
+  button.disabled =
+    true;
+
+
+  const passwordOk =
+    await verifyPassword();
+
+
+  if(!passwordOk){
+
+    button.disabled =
+      false;
+
+    return;
+
+  }
+
+
+  console.log(
+    "パスワードOK"
+  );
+
+
+  const passwordArea =
+    document.getElementById(
+      "password-area"
+    );
+
+
+  const statusArea =
+    document.getElementById(
+      "status-area"
+    );
+
+
+  const form =
+    document.getElementById(
+      "survey-form"
+    );
+
+
+  passwordArea.style.display =
+    "none";
+
+
+  statusArea.style.display =
+    "block";
+
+
+  statusArea.textContent =
+    "番号を割り当てています…";
+
+
+  /* ==========================================================
+   * 回答者ID取得
+   * ========================================================== */
+
+  const respondentId =
+    getRespondentId();
+
+
+  console.log(
+    "回答者ID:",
+    respondentId
+  );
+
+
+  /* ==========================================================
+   * 3つの番号を取得
+   * ========================================================== */
+
+  const {
+    data:numbers,
+    error
+  } =
+    await supabaseClient.rpc(
+      "assign_numbers",
+      {
+        p_respondent_id:
+          respondentId
+      }
+    );
+
+
+  console.log(
+    "割り当て番号:",
+    numbers
+  );
+
+
+  console.log(
+    "割り当てエラー:",
+    error
+  );
+
+
+  if(error){
+
+    console.error(error);
+
+
+    statusArea.textContent =
+      "番号の取得に失敗しました。時間をおいて再度お試しください。";
+
+
+    button.disabled =
+      false;
+
+
+    return;
+
+  }
+
+
+  if(
+    !Array.isArray(numbers) ||
+    numbers.length !== 3
+  ){
+
+    console.error(
+      "番号が3つではありません:",
+      numbers
+    );
+
+
+    statusArea.textContent =
+      "番号の取得に失敗しました。";
+
+
+    return;
+
+  }
+
+
+  /* ==========================================================
+   * アンケート表示
+   * ========================================================== */
+
+  statusArea.style.display =
+    "none";
+
+
+  form.style.display =
+    "block";
+
+
+  form.innerHTML =
+
+    numbers
+      .map(
+        (n,i) =>
+          cardHtml(n,i)
+      )
+      .join("")
+
+    +
+
+    `
+
+      <div class="submit-row">
+
+        <button
+          type="submit"
+        >
+          回答を送信する
+        </button>
+
+
+        <div
+          class="error"
+          id="submit-error"
+          style="display:none;"
+        ></div>
+
+      </div>
+
+    `;
+
+
+  /* ==========================================================
+   * 回答送信
+   * ========================================================== */
+
+  form.addEventListener(
+    "submit",
+    async (e) => {
+
+      e.preventDefault();
+
+
+      const submitBtn =
+        form.querySelector(
+          "button[type=submit]"
+        );
+
+
+      const errorBox =
+        document.getElementById(
+          "submit-error"
+        );
+
+
+      submitBtn.disabled =
+        true;
+
+
+      errorBox.style.display =
+        "none";
+
+
+      try{
+
+        /* ====================================================
+         * 3つの番号それぞれについて回答を送信
+         * ==================================================== */
+
+        for(
+          const n of numbers
+        ){
+
+          const answers = {};
+
+
+          QUESTIONS.forEach(
+            q => {
+
+              const element =
+                form.elements[
+                  `n${n}_${q.id}`
+                ];
+
+
+              answers[q.id] =
+                element.value.trim();
+
+            }
+          );
+
+
+          console.log(
+            "回答送信:",
+            n,
+            answers
+          );
+
+
+          const {
+            error:submitErr
+          } =
+            await supabaseClient.rpc(
+              "submit_response",
+              {
+
+                p_respondent_id:
+                  respondentId,
+
+                p_target_number:
+                  n,
+
+                p_answers:
+                  answers
+
+              }
+            );
+
+
+          if(submitErr){
+
+            throw submitErr;
+
+          }
+
+        }
+
+
+        /* ====================================================
+         * 送信完了
+         * ==================================================== */
+
+        form.style.display =
+          "none";
+
+
+        document.getElementById(
+          "done-area"
+        ).style.display =
+          "block";
+
+
+      }catch(err){
+
+        console.error(err);
+
+
+        errorBox.textContent =
+          "送信に失敗しました。もう一度お試しください。";
+
+
+        errorBox.style.display =
+          "block";
+
+
+        submitBtn.disabled =
+          false;
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+ * 「アンケートを開始」ボタン
+ * ============================================================ */
+
+document
+  .getElementById(
+    "password-button"
+  )
+  .addEventListener(
+    "click",
+    startSurvey
+  );
+
+
+/* ============================================================
+ * Enterキーでも開始
+ * ============================================================ */
+
+document
+  .getElementById(
+    "survey-password"
+  )
+  .addEventListener(
+    "keydown",
+    (e) => {
+
+      if(e.key === "Enter"){
+
+        e.preventDefault();
+
+        startSurvey();
+
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+</html>
