@@ -281,6 +281,17 @@ button:not(:disabled):hover{
         autocomplete="off"
       >
 
+      <label for="respondent-number">
+        あなたの出席番号
+      </label>
+
+      <select
+        id="respondent-number"
+        required
+      >
+        <option value="" disabled selected>選択してください</option>
+      </select>
+
 
       <div class="submit-row">
 
@@ -415,6 +426,70 @@ const RESPONDENT_KEY =
   "impression_survey_respondent_id";
 
 
+/* ============================================================
+ * 回答者名を回答内容に紐づけるかどうか
+ *
+ * false → 回答は匿名のまま。誰が提出済みかだけ別途わかる。
+ * true  → 各回答に回答者の出席番号も一緒に保存される。
+ * ============================================================ */
+
+const LINK_RESPONDENT_NAME = false;
+
+
+/* ============================================================
+ * 出席番号の読み込み（名前は表示しない・個人情報保護のため）
+ * ============================================================ */
+
+async function loadRoster(){
+
+  const select =
+    document.getElementById(
+      "respondent-number"
+    );
+
+  const {
+    data:roster,
+    error
+  } =
+    await supabaseClient.rpc(
+      "get_roster_numbers"
+    );
+
+  if(error){
+
+    console.error(error);
+
+    return;
+
+  }
+
+  roster
+    .forEach(
+      r => {
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+        option.value =
+          r.number;
+
+        option.textContent =
+          `${r.number}番`;
+
+        select.appendChild(
+          option
+        );
+
+      }
+    );
+
+}
+
+loadRoster();
+
+
 function getRespondentId(){
 
   let id =
@@ -487,13 +562,13 @@ function fieldHtml(number,q){
  * 番号カードHTML
  * ============================================================ */
 
-function cardHtml(number,index){
+function cardHtml(target,index){
 
   return `
 
     <section
       class="card"
-      data-number="${number}"
+      data-number="${target.number}"
     >
 
       <div class="card-head">
@@ -503,14 +578,14 @@ function cardHtml(number,index){
           番号
 
           <span class="num">
-            ${number}
+            ${target.number}
           </span>
 
         </span>
 
 
         <p>
-          ${index + 1} / 3人目
+          ${target.name}さん　（${index + 1} / 3人目）
         </p>
 
       </div>
@@ -519,7 +594,7 @@ function cardHtml(number,index){
       ${QUESTIONS
         .map(
           q =>
-            fieldHtml(number,q)
+            fieldHtml(target.number,q)
         )
         .join("")
       }
@@ -660,6 +735,35 @@ async function startSurvey(){
   console.log(
     "パスワードOK"
   );
+
+
+  const respondentNumber =
+    Number(
+      document.getElementById(
+        "respondent-number"
+      ).value
+    );
+
+
+  if(!respondentNumber){
+
+    const errorBox =
+      document.getElementById(
+        "password-error"
+      );
+
+    errorBox.textContent =
+      "出席番号を選択してください。";
+
+    errorBox.style.display =
+      "block";
+
+    button.disabled =
+      false;
+
+    return;
+
+  }
 
 
   const passwordArea =
@@ -856,8 +960,11 @@ async function startSurvey(){
          * ==================================================== */
 
         for(
-          const n of numbers
+          const target of numbers
         ){
+
+          const n =
+            target.number;
 
           const answers = {};
 
@@ -876,6 +983,14 @@ async function startSurvey(){
 
             }
           );
+
+
+          if(LINK_RESPONDENT_NAME){
+
+            answers.respondent_number =
+              respondentNumber;
+
+          }
 
 
           console.log(
@@ -910,6 +1025,31 @@ async function startSurvey(){
             throw submitErr;
 
           }
+
+        }
+
+
+        /* ====================================================
+         * 提出済みフラグを立てる
+         * （回答内容とは別ルート。誰の回答かは追跡できない）
+         * ==================================================== */
+
+        const {
+          error:markErr
+        } =
+          await supabaseClient.rpc(
+            "mark_submitted",
+            {
+              p_number:
+                respondentNumber
+            }
+          );
+
+        if(markErr){
+
+          console.error(
+            markErr
+          );
 
         }
 
