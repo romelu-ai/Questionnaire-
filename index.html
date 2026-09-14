@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>卒業アルクラスページアンケート</title>
+<title>クラス印象アンケート</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
@@ -239,11 +239,11 @@ button:not(:disabled):hover{
 
   <header class="page-head">
 
-    <h1>卒アルクラスページアンケート</h1>
+    <h1>クラス印象アンケート</h1>
 
     <p class="lead">
       あなたには <b>3人分</b> の番号がランダムに割り当てられます。
-      それぞれのクラスメイトについて、印象を教えてください。
+      それぞれについて、印象を教えてください。
     </p>
 
   </header>
@@ -822,7 +822,10 @@ async function startSurvey(){
       "assign_numbers",
       {
         p_respondent_id:
-          respondentId
+          respondentId,
+
+        p_own_number:
+          respondentNumber
       }
     );
 
