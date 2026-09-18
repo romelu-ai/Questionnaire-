@@ -265,21 +265,11 @@ button:not(:disabled):hover{
 
         <p>
           アンケートを開始するには
-          パスワードを入力してください。
+          あなたの出席番号を選んでください。
         </p>
 
       </div>
 
-
-      <label for="survey-password">
-        パスワード
-      </label>
-
-      <input
-        type="password"
-        id="survey-password"
-        autocomplete="off"
-      >
 
       <label for="respondent-number">
         あなたの出席番号
@@ -719,7 +709,7 @@ async function startSurvey(){
 
 
   const passwordOk =
-    await verifyPassword();
+    true; // パスワード確認は廃止済み
 
 
   if(!passwordOk){
@@ -733,7 +723,7 @@ async function startSurvey(){
 
 
   console.log(
-    "パスワードOK"
+    "パスワード確認スキップ（廃止済み）"
   );
 
 
@@ -1115,7 +1105,7 @@ document
 
 document
   .getElementById(
-    "survey-password"
+    "respondent-number"
   )
   .addEventListener(
     "keydown",
